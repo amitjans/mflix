@@ -122,7 +122,14 @@ namespace M220N.Repositories
             //   .Project(...)
             //   .ToListAsync(cancellationToken);
 
-            return null;
+            var filter = Builders<Movie>.Filter.In("countries", countries);
+            var projection = Builders<Movie>.Projection.Include(m => m.Title);
+
+            //f => countries.Contains(f.Countries[0]) || countries.Contains(f.Countries[1]) || countries.Contains(f.Countries[2])
+
+            return await _moviesCollection.Find(filter).SortByDescending(m => m.Title).Project<MovieByCountryProjection>(projection).ToListAsync(cancellationToken);
+            
+            //return null;
         }
 
         /// <summary>
@@ -193,17 +200,7 @@ namespace M220N.Repositories
 
             // TODO Ticket: Enable filtering of movies by genre.
             // If you get stuck see the ``GetMoviesByCastAsync`` method above.
-            /*return await _moviesCollection
-               .Find(...)
-               .ToListAsync(cancellationToken);*/
-
-            // // TODO Ticket: Paging
-            // TODO Ticket: Paging
-            // Modify the code you added in the Text and Subfield ticket to
-            // include pagination. Refer to the other methods in this class
-            // if you need a hint.
-
-            return returnValue;
+            return await _moviesCollection.Find(Builders<Movie>.Filter.In("genres", genres)).Limit(limit).Skip(page * limit).Sort(sort).ToListAsync(cancellationToken);
         }
 
         /// <summary>
